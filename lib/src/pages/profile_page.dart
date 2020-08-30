@@ -1,0 +1,156 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:tallercall/constants.dart';
+import 'package:tallercall/src/providers/database_provider.dart';
+import 'package:tallercall/src/services/user_prefs.dart';
+import 'package:tallercall/src/widgets/custom_square.dart';
+
+class ProfilePage extends StatefulWidget {
+
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final _firestore = Database();
+
+  final _prefs = UserPrefs();
+
+  @override
+  Widget build(BuildContext context) {
+
+    final size = MediaQuery.of(context).size;
+
+    _prefs.lastPage='profile';
+
+    return Scaffold(
+      body: Stack(
+        children : [
+          CustomSquare(height:size.height*0.4 ,),
+          _body( context)
+        ]
+      ),
+    );
+  }
+
+  _body(BuildContext context){
+
+    final size = MediaQuery.of(context).size;
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SafeArea(child: Container(height: size.height*0.04,),),
+          _userData(context),
+          SizedBox(height: size.height*0.03,width: size.width,),
+          Text('Vehiculos',style: kTextStyleTitleWhite,),
+          SizedBox(height: size.height*0.03,),
+          _vehicleData(context),
+          SizedBox(height: size.height*0.05,),
+          RaisedButton(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0)
+            ),
+            color: Colors.red,
+            child: Text('Reservar servicio',style: TextStyle(color: Colors.white),),
+            onPressed: (){},
+          ),
+          RaisedButton(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0)
+            ),
+            color: Colors.red,
+            child: Text('Estado actual',style: TextStyle(color: Colors.white),),
+            onPressed: (){},
+          )
+        ],
+
+      ),
+    );
+  }
+
+  StreamBuilder _userData(BuildContext context){
+
+    final size = MediaQuery.of(context).size;
+
+    return StreamBuilder<DocumentSnapshot>(
+        stream:_firestore.getUserStream("Usuarios",_prefs.uid),
+        builder: (BuildContext context, snapshot) {
+          final data = snapshot.data.data();
+          if (snapshot.hasData) {
+            return Container(
+              width: size.width,
+              child: Column (
+                children: [
+                  Text(data['nombre'] + " " + data['apellido'],style: kTextStyleTitleWhite,),
+                  SizedBox(height: 5.0,),
+                  Text(_prefs.email,style: kTextStyleWhite,),
+                  SizedBox(height: 5.0,),
+                  Text(data['telefono'].toString(),style: kTextStyleWhite,),
+                  SizedBox(height: 5.0,),
+                ],
+              ),
+            );
+          }else{
+            return Center(child: CircularProgressIndicator(),);
+          }
+
+        }
+    );
+
+  }
+
+  Widget _vehicleData(BuildContext context){
+
+    final size = MediaQuery.of(context).size;
+
+    return  Container(
+      width: size.width*0.8,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(width: 0.5)
+      ),
+      child: StreamBuilder<DocumentSnapshot>(
+          stream:_firestore.getUserStream("Usuarios",_prefs.uid),
+          builder: (BuildContext context, snapshot) {
+            final data = snapshot.data.data();
+            if (snapshot.hasData) {
+              List vehicles = (data['vehiculos']!=null) ? data['vehiculos'] : [] ;
+              return Column (
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.directions_car,color: Colors.black,),
+                      title: Text(vehicles.last['marca'] + " " + vehicles.last['modelo']),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.calendar_today,color: Colors.black,),
+                      title: Text(vehicles.last['anho'].toString()),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.check,color: Colors.black,),
+                      title:(vehicles.last['matricula']!=null || vehicles.last['matricula']!="")
+                          ? Text(vehicles.last['matricula'])
+                          : Text('Un administrador pondra su placa')
+                      ),
+                    ListTile(
+                      leading: Text('VIN',style: TextStyle(fontSize: 20.0),),
+                      title: (vehicles.last['vin']!=null || vehicles.last['matricula']!="")
+                          ? Text(vehicles.last['matricula'])
+                          : Text('Un administrador pondra su VIN'),
+                    ),
+                    SizedBox(height: size.height*0.02,)
+                  ],
+                );
+
+            }else{
+              return Center(child: CircularProgressIndicator(),);
+            }
+
+          }
+      ),
+    );
+  }
+
+
+}
