@@ -8,7 +8,6 @@ class Database{
 
   final _prefs = UserPrefs();
 
-
   Future<String> mainCollectionAddData(String collection,Map<String,dynamic> data) async {
     DocumentReference document = await _firestore.collection(collection).add(data);
     _prefs.lastAppointment = document.documentID;
@@ -24,11 +23,11 @@ class Database{
   }
 
 
-  Stream<QuerySnapshot> getCollectionStream(String collection,List<String> query,String where)  {
+  Stream<QuerySnapshot> getCollectionStream(String collection,String query,String where)  {
     if(where==''||query.isEmpty){
       return _firestore.collection(collection).snapshots();
     }else
-      return _firestore.collection(collection).where(where,arrayContainsAny: query).snapshots();
+      return _firestore.collection(collection).where(where,isEqualTo: query).where('estado',isEqualTo: 'finalizado').snapshots();
     }
 
   Future<DocumentSnapshot> getAppointment(String collection,String id)  {
@@ -41,6 +40,7 @@ class Database{
     }
 
   }
+
 
   Stream<DocumentSnapshot> getUserStream(String collection,String id)  {
     try{

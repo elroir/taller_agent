@@ -6,11 +6,9 @@ import 'package:tallercall/constants.dart';
 import 'package:tallercall/src/models/appointment_model.dart';
 import 'package:tallercall/src/providers/database_provider.dart';
 import 'package:tallercall/src/providers/info.dart';
-import 'package:tallercall/src/services/tts_service.dart';
 import 'package:tallercall/src/services/user_prefs.dart';
 import 'package:tallercall/src/utils/utils.dart';
 import 'package:tallercall/src/widgets/custom_square.dart';
-import 'package:tallercall/src/widgets/mic_button_widget.dart';
 
 class AppointmentPage extends StatefulWidget {
 
@@ -40,8 +38,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
           _body(context,info)
         ],
       ),
-      floatingActionButton: MicWidget(info: info ,),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+
     );
 
   }
@@ -168,37 +165,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
   }
 
-  void register(Info info){
-
-    if (kAppointmentIntents.contains(info.intent)){
-
-      if (info.intent=='Fijar dia y hora'||info.intent=='Fijar dia')
-        date = DateTime.parse(info.queryResult.parameters['dia']);
-      if (date.weekday!= 7) {
-
-        String response = info.queryResult.fulfillmentText;
-
-        if (info.intent=='Fijar dia y hora'||info.intent=='Fijar hora'){
-          response = response.substring(0,response.length-6);
-          String day = date.toString();
-          day = day.substring(0,10);
-          String hour = info.queryResult.parameters['hora'];
-          hour = hour.substring(11,hour.length-9);
-          _appointmentModel.estado = 'aprobado';
-          _appointmentModel.fecha = day;
-          _appointmentModel.hora = hour;
-          _prefs.hour = hour;
-          _prefs.date = info.queryResult.parameters['dia'];
-          _firestore.mainCollectionAddData(
-              'Citas', _appointmentModel.toJson());
-        }
-        speak(response);
-      }
-      else
-        speak('Lo siento, no atendemos los domingos');
-    }
-
-  }
 
   void createDialog(BuildContext context,String title,String content){
     showDialog(context: context,

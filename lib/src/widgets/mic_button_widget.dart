@@ -48,7 +48,7 @@ class _MicWidgetState extends State<MicWidget> {
 
 
     return FloatingActionButton(
-      child: Icon(Icons.mic,color: speech.isListening ? Colors.redAccent : Colors.white,),
+      child: Icon(Icons.call,color: speech.isListening ? Colors.redAccent : Colors.white,),
       backgroundColor: Colors.red,
       onPressed: ()  {
         if(!_hasSpeech || !speech.isListening){

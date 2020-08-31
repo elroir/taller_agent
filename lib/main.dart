@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:tallercall/src/pages/appointment_page.dart';
+import 'package:tallercall/src/pages/historic_page.dart';
 
 import 'package:tallercall/src/pages/home_page.dart';
 import 'package:tallercall/src/pages/logged_appointment_page.dart';
@@ -63,6 +64,7 @@ class MyApp extends StatelessWidget {
           'welcome'            : (context)  => WelcomePage(),
           'profile'            : (context)  => ProfilePage(),
           'logged_appointment' : (context)  => LoggedAppointmentPage(),
+          'historic'           : (context)  => HistoricPage(),
         },
       ),
     );

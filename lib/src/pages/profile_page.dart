@@ -27,6 +27,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
     _prefs.lastPage='profile';
 
+    print(_prefs.lastAppointment);
+
     return Scaffold(
       body: Stack(
         children : [
@@ -86,6 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Navigator.pushReplacementNamed(context, 'home');
             },
           ),
+          SizedBox(height: size.height*0.2,)
         ],
 
       ),
@@ -152,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     ListTile(
                       leading: Icon(Icons.check,color: Colors.black,),
-                      title:(vehicles.last['matricula']!=null || vehicles.last['matricula']!="")
+                      title:(vehicles.last['matricula']!=null)
                           ? Text(vehicles.last['matricula'])
                           : Text('Un administrador pondra su placa')
                       ),
@@ -162,7 +165,18 @@ class _ProfilePageState extends State<ProfilePage> {
                           ? Text(vehicles.last['vin'])
                           : Text('Un administrador pondra su VIN'),
                     ),
-                    SizedBox(height: size.height*0.02,)
+                    SizedBox(height: size.height*0.02,),
+                    RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0)
+                      ),
+                      color: Colors.red,
+                      child: Text('Historial',style: TextStyle(color: Colors.white),),
+                      onPressed: (){
+                        Navigator.pushNamed(context, 'historic');
+                      },
+                    ),
+                    SizedBox(height: size.height*0.02,),
                   ],
                 );
 

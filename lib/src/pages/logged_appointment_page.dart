@@ -40,8 +40,6 @@ class _LoggedAppointmentPageState extends State<LoggedAppointmentPage> {
           _body(context,info)
         ],
       ),
-      floatingActionButton: MicWidget(info: info ,),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
 
   }
@@ -137,6 +135,7 @@ class _LoggedAppointmentPageState extends State<LoggedAppointmentPage> {
               _appointmentModel.estado = 'aprobado';
               _appointmentModel.fecha = _date;
               _appointmentModel.hora = _time;
+              _appointmentModel.usuario = _prefs.uid;
               _prefs.hour = _time;
               _prefs.date = _date;
               _firestore.mainCollectionAddData(
@@ -144,6 +143,7 @@ class _LoggedAppointmentPageState extends State<LoggedAppointmentPage> {
               setState(() {
 
               });
+              Navigator.of(context).pop();
             }else
               createSimpleDialog(context, 'No ha elegido una fecha', 'Por favor, primero elija una fecha y hora');
           },
