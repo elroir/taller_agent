@@ -12,13 +12,13 @@ import 'package:tallercall/src/utils/utils.dart';
 import 'package:tallercall/src/widgets/custom_square.dart';
 import 'package:tallercall/src/widgets/mic_button_widget.dart';
 
-class AppointmentPage extends StatefulWidget {
+class LoggedAppointmentPage extends StatefulWidget {
 
   @override
-  _AppointmentPageState createState() => _AppointmentPageState();
+  _LoggedAppointmentPageState createState() => _LoggedAppointmentPageState();
 }
 
-class _AppointmentPageState extends State<AppointmentPage> {
+class _LoggedAppointmentPageState extends State<LoggedAppointmentPage> {
 
   String _date = '';
   String _time = '';
@@ -58,14 +58,14 @@ class _AppointmentPageState extends State<AppointmentPage> {
         Row(
           children: [
             Icon(Icons.calendar_today,size: 120.0,color: Colors.white,),
-            _prefs.lastAppointment!='' ? _currentAppointment(context,info) : Column(
+            Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Fecha: ',style: kTextStyleTitleWhite,),
-                (_date!='') ? Text(_date,style: kTextStyleWhite,) : Container(width: 50.0,child: Divider(color: Colors.white,thickness: 3.0,)),
+                (_prefs.date!='') ? Text(_prefs.date,style: kTextStyleWhite,) : Container(width: 50.0,child: Divider(color: Colors.white,thickness: 3.0,)),
                 Text('Hora: ',style: kTextStyleTitleWhite,),
-                (_time!='') ? Text(_time,style: kTextStyleWhite,) : Container(width: 50.0,child: Divider(color: Colors.white,thickness: 3.0,)),
+                (_prefs.hour!='') ? Text(_prefs.hour,style: kTextStyleWhite,) : Container(width: 50.0,child: Divider(color: Colors.white,thickness: 3.0,)),
               ],
             )
           ],
@@ -76,17 +76,30 @@ class _AppointmentPageState extends State<AppointmentPage> {
           child: Text('Elegir horario',style: TextStyle(color: Colors.white),),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
           onPressed: () {
+            setState(() {
+              _time = _prefs.hour;
+              _date = _prefs.date;
+              _prefs.hour = '';
+              _prefs.date = '';
+            });
             DatePicker.showDateTimePicker(context,
                 showTitleActions: true,
                 minTime: DateTime.now(),
                 maxTime: DateTime.now().add(new Duration(days: 15)),
+                onCancel: (){
+                  setState(() {
+                    _prefs.hour = _time;
+                    _prefs.date = _date;
+                  });
+                },
                 onConfirm: (date) {
                 if (date.weekday!=7){
                   setState(() {
                     _date = date.toString();
                     _time = _date.substring(11,16);
                     _date = _date.substring(0,10);
-
+                    _prefs.hour = _time;
+                    _prefs.date = _date;
                   });
                 }else{
                   showDialog(context: context,
@@ -141,65 +154,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
   }
 
-  StreamBuilder _currentAppointment(BuildContext context,Info info){
-
-    return StreamBuilder<DocumentSnapshot>(
-        stream: _firestore.getUserStream('Citas', _prefs.lastAppointment),
-        builder: (context, snapshot) {
-
-          final data = snapshot.data;
-
-          if(data['estado']=="finalizado"){
-            _prefs.lastAppointment='';
-
-          }
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Fecha: ',style: kTextStyleTitleWhite,),
-              Text(data['fecha'],style: kTextStyleWhite,),
-              Text('Hora: ',style: kTextStyleTitleWhite,),
-              Text(data['hora'],style: kTextStyleWhite,),
-            ],
-          );
-        }
-    );
-
-  }
-
-  void register(Info info){
-
-    if (kAppointmentIntents.contains(info.intent)){
-
-      if (info.intent=='Fijar dia y hora'||info.intent=='Fijar dia')
-        date = DateTime.parse(info.queryResult.parameters['dia']);
-      if (date.weekday!= 7) {
-
-        String response = info.queryResult.fulfillmentText;
-
-        if (info.intent=='Fijar dia y hora'||info.intent=='Fijar hora'){
-          response = response.substring(0,response.length-6);
-          String day = date.toString();
-          day = day.substring(0,10);
-          String hour = info.queryResult.parameters['hora'];
-          hour = hour.substring(11,hour.length-9);
-          _appointmentModel.estado = 'aprobado';
-          _appointmentModel.fecha = day;
-          _appointmentModel.hora = hour;
-          _prefs.hour = hour;
-          _prefs.date = info.queryResult.parameters['dia'];
-          _firestore.mainCollectionAddData(
-              'Citas', _appointmentModel.toJson());
-        }
-        speak(response);
-      }
-      else
-        speak('Lo siento, no atendemos los domingos');
-    }
-
-  }
-
   void createDialog(BuildContext context,String title,String content){
     showDialog(context: context,
         builder: (BuildContext context){
@@ -212,8 +166,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
                   FlatButton(
                     child: Text('OK'),
                     onPressed: () {
-
-                      Navigator.of(context).pushReplacementNamed('home');
+                      Navigator.of(context).pushReplacementNamed('profile');
                     },
                   ),
                 ],

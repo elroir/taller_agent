@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:tallercall/src/pages/appointment_page.dart';
 
 import 'package:tallercall/src/pages/home_page.dart';
+import 'package:tallercall/src/pages/logged_appointment_page.dart';
 import 'package:tallercall/src/pages/login_page.dart';
 import 'package:tallercall/src/pages/profile_page.dart';
 import 'package:tallercall/src/pages/register_page.dart';
@@ -17,7 +17,6 @@ import 'package:tallercall/src/services/user_prefs.dart';
 void main() async{
 
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
   final prefs = new UserPrefs();
   await prefs.initPrefs();
 
@@ -56,13 +55,14 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: _prefs.lastPage,
         routes: {
-          'home'             : (context)  => HomePage(),
-          'appointment'      : (context)  => AppointmentPage(),
-          'speaking'         : (context)  => SpeakingPage(),
-          'login'            : (context)  => LoginPage(),
-          'register'         : (context)  => RegisterPage(),
-          'welcome'          : (context)  => WelcomePage(),
-          'profile'          : (context)  => ProfilePage(),
+          'home'               : (context)  => HomePage(),
+          'appointment'        : (context)  => AppointmentPage(),
+          'speaking'           : (context)  => SpeakingPage(),
+          'login'              : (context)  => LoginPage(),
+          'register'           : (context)  => RegisterPage(),
+          'welcome'            : (context)  => WelcomePage(),
+          'profile'            : (context)  => ProfilePage(),
+          'logged_appointment' : (context)  => LoggedAppointmentPage(),
         },
       ),
     );

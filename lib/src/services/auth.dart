@@ -13,7 +13,7 @@ class AuthService {
     try {
       final result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-      User user = result.user;
+      FirebaseUser user = result.user;
       _prefs.uid = user.uid;
       return {"ok": true, "token": _prefs.uid};
     } catch (e) {
@@ -25,11 +25,11 @@ class AuthService {
   // MUST USE THIS FUNCT
   Future<Map<String, dynamic>> signIn(String email, String password) async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
+      AuthResult result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
 
       if (result.user != null) {
-        _prefs.token = (await result.user.getIdToken());
+        _prefs.token = (await result.user.getIdToken()).token;
         _prefs.uid = result.user.uid;
         _prefs.email = result.user.email;
       }
@@ -42,7 +42,7 @@ class AuthService {
 
   Future<Map<String, dynamic>> deleteUser() async {
     try {
-      User user = _auth.currentUser;
+      FirebaseUser user = await _auth.currentUser();
       user.delete();
       return {"ok": true, "token": _prefs.token};
     } catch (e) {
@@ -52,19 +52,19 @@ class AuthService {
     }
   }
 
-  Future<User> get currentUser async {
-    return _auth.currentUser;
+  Future<FirebaseUser> get currentUser async {
+    return await _auth.currentUser();
   }
 
   Future<void> sendEmailVerification() async {
-    User user = _auth.currentUser;
+    FirebaseUser user = await _auth.currentUser();
     return user.sendEmailVerification();
   }
 
   Future<void> signOut() async => _auth.signOut();
 
   Future<bool> isEmailVerified() async {
-    User user =  _auth.currentUser;
-    return user.emailVerified;
+    FirebaseUser user = await _auth.currentUser();
+    return user.isEmailVerified;
   }
 }

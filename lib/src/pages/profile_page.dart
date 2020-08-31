@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tallercall/constants.dart';
 import 'package:tallercall/src/providers/database_provider.dart';
+import 'package:tallercall/src/services/auth.dart';
 import 'package:tallercall/src/services/user_prefs.dart';
+import 'package:tallercall/src/utils/utils.dart';
 import 'package:tallercall/src/widgets/custom_square.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -15,6 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
   final _firestore = Database();
 
   final _prefs = UserPrefs();
+
+  final AuthService _auth = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -53,16 +57,35 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             color: Colors.red,
             child: Text('Reservar servicio',style: TextStyle(color: Colors.white),),
-            onPressed: (){},
+            onPressed: (){
+              Navigator.pushNamed(context, 'logged_appointment');
+            },
           ),
+          SizedBox(height: kSeparation,),
           RaisedButton(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0)
             ),
             color: Colors.red,
             child: Text('Estado actual',style: TextStyle(color: Colors.white),),
-            onPressed: (){},
-          )
+            onPressed: () async {
+              DocumentSnapshot appointment = await  _firestore.getAppointment('Citas', _prefs.lastAppointment);
+              String content = appointment['estado'];
+              createSimpleDialog(context, 'Su estado actual es', content);
+            },
+          ),
+          SizedBox(height: kSeparation,),
+          RaisedButton(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0)
+            ),
+            color: Colors.red,
+            child: Text('Cerrar sesion',style: TextStyle(color: Colors.white),),
+            onPressed: (){
+              _auth.signOut();
+              Navigator.pushReplacementNamed(context, 'home');
+            },
+          ),
         ],
 
       ),
@@ -76,7 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return StreamBuilder<DocumentSnapshot>(
         stream:_firestore.getUserStream("Usuarios",_prefs.uid),
         builder: (BuildContext context, snapshot) {
-          final data = snapshot.data.data();
+          final data = snapshot.data;
           if (snapshot.hasData) {
             return Container(
               width: size.width,
@@ -114,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: StreamBuilder<DocumentSnapshot>(
           stream:_firestore.getUserStream("Usuarios",_prefs.uid),
           builder: (BuildContext context, snapshot) {
-            final data = snapshot.data.data();
+            final data = snapshot.data;
             if (snapshot.hasData) {
               List vehicles = (data['vehiculos']!=null) ? data['vehiculos'] : [] ;
               return Column (
@@ -135,8 +158,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ListTile(
                       leading: Text('VIN',style: TextStyle(fontSize: 20.0),),
-                      title: (vehicles.last['vin']!=null || vehicles.last['matricula']!="")
-                          ? Text(vehicles.last['matricula'])
+                      title: (vehicles.last['vin']!=null)
+                          ? Text(vehicles.last['vin'])
                           : Text('Un administrador pondra su VIN'),
                     ),
                     SizedBox(height: size.height*0.02,)

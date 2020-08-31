@@ -24,12 +24,20 @@ class UserPrefs {
     _prefs.setString('hour', value);
   }
 
-  get minutes {
-    return _prefs.getString('minutes') ?? '';
+  get lastAppointment {
+    return _prefs.getString('lastAppointment') ?? '';
   }
 
-  set minutes( String value ) {
-    _prefs.setString('minutes', value);
+  set lastAppointment( String value ) {
+    _prefs.setString('lastAppointment', value);
+  }
+
+  get date {
+    return _prefs.getString('date') ?? '';
+  }
+
+  set date( String value ) {
+    _prefs.setString('date', value);
   }
 
   get token {
@@ -39,7 +47,6 @@ class UserPrefs {
   set token( String value ) {
     _prefs.setString('token', value);
   }
-
 
   get uid{
     return _prefs.getString('uid') ?? '';

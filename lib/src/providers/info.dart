@@ -9,6 +9,7 @@ class Info with ChangeNotifier {
   String _response = '';
   String _intent = '';
   String _email = '';
+  bool _appointment =  false;
   QueryResult _queryResult;
 
 
@@ -46,6 +47,15 @@ class Info with ChangeNotifier {
 
   set response(String text) {
     this._response = text;
+    notifyListeners();
+  }
+
+  get appointment {
+    return _appointment;
+  }
+
+  set appointment(bool text) {
+    this._appointment = text;
     notifyListeners();
   }
 

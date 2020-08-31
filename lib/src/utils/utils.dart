@@ -64,3 +64,4 @@ int getWeekday(String day){
         }
     );
   }
+
